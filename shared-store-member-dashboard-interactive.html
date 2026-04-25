@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>共享商店互動式會員 Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;800&family=Newsreader:opsz,wght@6..72,600&display=swap" rel="stylesheet">
+  <style>
+    :root, [data-theme="light"] {
+      --text-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
+      --text-sm: clamp(0.875rem, 0.8rem + 0.35vw, 1rem);
+      --text-base: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+      --text-lg: clamp(1.125rem, 1rem + 0.75vw, 1.5rem);
+      --text-xl: clamp(1.45rem, 1.15rem + 1.3vw, 2.1rem);
+      --space-1: 0.25rem; --space-2: 0.5rem; --space-3: 0.75rem; --space-4: 1rem; --space-5: 1.25rem; --space-6: 1.5rem; --space-8: 2rem; --space-10: 2.5rem; --space-12: 3rem;
+      --radius-sm: .5rem; --radius-md: .9rem; --radius-lg: 1.2rem; --radius-xl: 1.6rem;
+      --color-bg: #f6f4ef; --color-surface: #fcfbf8; --color-surface-2: #f1ede5; --color-surface-3: #ece7de;
+      --color-border: #d7d1c7; --color-divider: #e3ddd4; --color-text: #232018; --color-text-muted: #6c675f; --color-text-faint: #9a948a;
+      --color-primary: #0b6b70; --color-primary-hover: #084f53; --color-primary-soft: #dbeae8;
+      --color-warning: #b7682d; --color-warning-soft: #f3e4d8; --color-success: #3d7d38; --color-success-soft: #dcead7; --color-error: #9a3553; --color-error-soft: #efd8df;
+      --shadow-sm: 0 1px 2px rgba(24,20,13,.05); --shadow-md: 0 10px 28px rgba(24,20,13,.08);
+      --font-body: 'Noto Sans TC', sans-serif; --font-display: 'Newsreader', serif;
+    }
+    [data-theme="dark"] {
+      --color-bg: #141311; --color-surface: #1c1a18; --color-surface-2: #23211e; --color-surface-3: #2a2723;
+      --color-border: #38342f; --color-divider: #2e2b27; --color-text: #f2eee6; --color-text-muted: #b4aea3; --color-text-faint: #8f897f;
+      --color-primary: #65aab0; --color-primary-hover: #87c0c5; --color-primary-soft: rgba(101,170,176,.15);
+      --color-warning: #f2aa6b; --color-warning-soft: rgba(242,170,107,.12); --color-success: #7ec77c; --color-success-soft: rgba(126,199,124,.12); --color-error: #de6d98; --color-error-soft: rgba(222,109,152,.12);
+      --shadow-sm: 0 1px 2px rgba(0,0,0,.22); --shadow-md: 0 18px 44px rgba(0,0,0,.28);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: var(--font-body); font-size: var(--text-base); line-height: 1.6; color: var(--color-text); background: var(--color-bg); min-height: 100vh; }
+    img, svg { display:block; max-width:100%; } button, input, select { font: inherit; color: inherit; } button { cursor:pointer; border:none; background:none; } a { color:inherit; text-decoration:none; } :focus-visible { outline: 2px solid var(--color-primary); outline-offset: 3px; }
+    .app-shell { min-height: 100vh; display:grid; grid-template-columns: 280px 1fr; }
+    .sidebar { background: color-mix(in srgb, var(--color-surface) 82%, var(--color-surface-2)); border-right: 1px solid color-mix(in srgb, var(--color-text) 8%, transparent); padding: var(--space-5); position: sticky; top:0; height:100vh; display:grid; grid-template-rows:auto auto 1fr auto; gap: var(--space-5); }
+    .brand { display:flex; align-items:center; gap:.9rem; font-weight:800; } .brand-mark { width:2.7rem; height:2.7rem; border-radius:.9rem; display:grid; place-items:center; background:linear-gradient(135deg, var(--color-primary), var(--color-warning)); color:white; box-shadow:var(--shadow-sm); flex:none; }
+    .member-card,.card { background: var(--color-surface); border:1px solid color-mix(in srgb, var(--color-text) 8%, transparent); border-radius: var(--radius-xl); box-shadow: var(--shadow-sm); }
+    .member-card { padding: var(--space-4); }
+    .pill { display:inline-flex; align-items:center; gap:.45rem; padding:.35rem .7rem; border-radius:999px; background: var(--color-primary-soft); color: var(--color-primary); font-size: var(--text-xs); font-weight:800; }
+    .pill.warning { background: var(--color-warning-soft); color: var(--color-warning); }
+    .pill.error { background: var(--color-error-soft); color: var(--color-error); }
+    .nav-group { display:grid; gap:.55rem; } .nav-title { padding:0 .75rem; color:var(--color-text-faint); font-size:var(--text-xs); font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
+    .nav-link { display:flex; align-items:center; gap:.75rem; padding:.85rem 1rem; border-radius:.95rem; color: var(--color-text-muted); min-height:44px; }
+    .nav-link.active { background: var(--color-primary-soft); color: var(--color-primary); font-weight:700; }
+    .nav-link:hover { background: var(--color-surface-2); color: var(--color-text); }
+    .theme-toggle,.icon-btn,.seg-btn,.slot-chip,.tier-btn,.quick-btn,.btn,.nav-tab { transition: background .18s ease, color .18s ease, transform .18s ease, border-color .18s ease, box-shadow .18s ease; }
+    .theme-toggle { width:2.8rem; height:2.8rem; border-radius:999px; background:var(--color-surface); border:1px solid color-mix(in srgb, var(--color-text) 10%, transparent); display:grid; place-items:center; }
+    .sidebar-footer { display:flex; gap:.75rem; align-items:center; justify-content:space-between; color: var(--color-text-muted); font-size: var(--text-sm); }
+    .main { padding: var(--space-5); display:grid; gap: var(--space-5); }
+    .topbar { display:flex; justify-content:space-between; align-items:center; gap:var(--space-4); padding: var(--space-4) var(--space-5); }
+    .topbar, .card { padding: var(--space-5); }
+    .topbar { background: color-mix(in srgb, var(--color-surface) 90%, transparent); border: 1px solid color-mix(in srgb, var(--color-text) 8%, transparent); border-radius: var(--radius-xl); }
+    .topbar h1 { font-size: var(--text-xl); line-height:1.08; font-family: var(--font-display); }
+    .muted { color: var(--color-text-muted); } .faint { color: var(--color-text-faint); }
+    .topbar-actions,.booking-actions,.flow-actions,.mobile-actions { display:flex; gap:.75rem; flex-wrap:wrap; }
+    .btn { min-height:44px; padding:.85rem 1.05rem; border-radius:999px; font-weight:700; display:inline-flex; align-items:center; justify-content:center; gap:.5rem; }
+    .btn:hover,.quick-btn:hover,.tier-btn:hover,.seg-btn:hover,.slot-chip:hover { transform: translateY(-1px); }
+    .btn-primary { background: var(--color-primary); color: white; } .btn-primary:hover { background: var(--color-primary-hover); }
+    .btn-secondary { background: var(--color-surface); border:1px solid color-mix(in srgb, var(--color-text) 10%, transparent); }
+    .stats { display:grid; grid-template-columns: repeat(4,1fr); gap: var(--space-4); }
+    .stat { padding: var(--space-4); border-radius: var(--radius-lg); background: color-mix(in srgb, var(--color-surface-2) 78%, transparent); border:1px solid color-mix(in srgb, var(--color-text) 7%, transparent); }
+    .stat strong { display:block; font-size:1.45rem; margin-top:.3rem; }
+    .layout { display:grid; grid-template-columns: minmax(0,1.5fr) minmax(320px,.95fr); gap: var(--space-5); align-items:start; }
+    .stack { display:grid; gap: var(--space-5); }
+    .card-header { display:flex; justify-content:space-between; gap:var(--space-4); align-items:start; margin-bottom: var(--space-4); }
+    .card-header h2,.card-header h3 { font-size:1.18rem; line-height:1.2; }
+    .booking-grid { display:grid; grid-template-columns: 320px 1fr; gap: var(--space-4); }
+    .panel { background: color-mix(in srgb, var(--color-surface-2) 55%, transparent); border:1px solid color-mix(in srgb, var(--color-text) 7%, transparent); border-radius: var(--radius-lg); padding: var(--space-4); }
+    .field { display:grid; gap:.55rem; margin-bottom:1rem; }
+    .field label { font-size: var(--text-sm); font-weight:700; }
+    .field input,.field select { min-height:46px; width:100%; border-radius:.9rem; border:1px solid var(--color-border); background: var(--color-surface); padding:0 .95rem; }
+    .segment,.tier-switch,.quick-slots,.slot-list,.stepper { display:flex; flex-wrap:wrap; gap:.65rem; }
+    .seg-btn,.tier-btn,.quick-btn,.slot-chip,.nav-tab { border-radius:.9rem; border:1px solid color-mix(in srgb, var(--color-text) 10%, transparent); background: var(--color-surface); min-height:44px; padding:.75rem .9rem; text-align:left; }
+    .seg-btn.active,.tier-btn.active,.quick-btn.active,.slot-chip.active,.nav-tab.active { border-color: var(--color-primary); background: var(--color-primary-soft); color: var(--color-primary); }
+    .tier-btn { min-width:88px; text-align:center; font-weight:800; }
+    .seg-btn small,.slot-chip small { display:block; color: var(--color-text-muted); font-weight:500; }
+    .summary-box,.notice-box,.flow-box { padding: var(--space-4); border-radius: var(--radius-lg); background: var(--color-surface); border:1px dashed color-mix(in srgb, var(--color-primary) 35%, transparent); display:grid; gap:.55rem; }
+    .summary-row { display:flex; justify-content:space-between; gap:1rem; font-size: var(--text-sm); color: var(--color-text-muted); }
+    .summary-row strong { color: var(--color-text); }
+    .calendar-top { display:flex; justify-content:space-between; align-items:center; gap:.75rem; margin-bottom:1rem; }
+    .calendar-nav { display:flex; gap:.5rem; } .icon-btn { width:2.5rem; height:2.5rem; border-radius:999px; background: var(--color-surface); border:1px solid color-mix(in srgb, var(--color-text) 10%, transparent); display:grid; place-items:center; }
+    .calendar-weekdays,.calendar-grid { display:grid; grid-template-columns: repeat(7,1fr); gap:.55rem; }
+    .calendar-weekdays div { font-size: var(--text-xs); color: var(--color-text-faint); text-align:center; font-weight:800; padding-bottom:.25rem; }
+    .day { min-height:96px; border-radius:1rem; padding:.75rem; background: var(--color-surface); border:1px solid color-mix(in srgb, var(--color-text) 7%, transparent); display:grid; gap:.4rem; align-content:start; }
+    .day[disabled] { opacity:.55; cursor:not-allowed; }
+    .day.selected { border-color: var(--color-primary); box-shadow: inset 0 0 0 1px var(--color-primary); }
+    .day.today { background: color-mix(in srgb, var(--color-primary-soft) 35%, var(--color-surface)); }
+    .day-number { font-size: var(--text-sm); font-weight:800; }
+    .slot-mini { display:inline-flex; align-items:center; justify-content:center; min-height:1.55rem; padding:.14rem .45rem; border-radius:999px; font-size:.72rem; font-weight:700; white-space:nowrap; }
+    .slot-mini.offpeak { background: var(--color-primary-soft); color: var(--color-primary); } .slot-mini.peak { background: var(--color-warning-soft); color: var(--color-warning); } .slot-mini.full { background: color-mix(in srgb, var(--color-text) 9%, transparent); color: var(--color-text-muted); }
+    .slot-list { margin-top: .8rem; }
+    .slot-chip { min-width: 142px; } .slot-chip.locked { border-style:dashed; opacity:.7; }
+    .progress { display:grid; grid-template-columns: repeat(3,1fr); gap:.75rem; }
+    .step { padding:.9rem 1rem; border-radius:1rem; background: color-mix(in srgb, var(--color-surface-2) 65%, transparent); border:1px solid color-mix(in srgb, var(--color-text) 8%, transparent); }
+    .step.active { background: var(--color-primary-soft); color: var(--color-primary); border-color: color-mix(in srgb, var(--color-primary) 45%, transparent); }
+    .step.done { background: var(--color-success-soft); color: var(--color-success); }
+    .record-list,.checklist { display:grid; gap:.85rem; }
+    .record,.check-item { padding:.95rem 1rem; border-radius:1rem; background: color-mix(in srgb, var(--color-surface-2) 68%, transparent); display:grid; gap:.35rem; }
+    .record-top { display:flex; justify-content:space-between; gap:.75rem; align-items:center; }
+    .status { display:inline-flex; align-items:center; gap:.4rem; padding:.3rem .7rem; border-radius:999px; font-size:.8rem; font-weight:800; }
+    .status.ok { background: var(--color-success-soft); color: var(--color-success); } .status.wait { background: var(--color-warning-soft); color: var(--color-warning); } .status.error { background: var(--color-error-soft); color: var(--color-error); }
+    .check-item { grid-template-columns:auto 1fr auto; align-items:center; gap:.8rem; }
+    .checkmark { width:1.15rem; height:1.15rem; border-radius:50%; background: var(--color-success); position:relative; }
+    .checkmark::after { content:''; position:absolute; inset:.28rem .23rem .23rem .28rem; border-right:2px solid #fff; border-bottom:2px solid #fff; transform:rotate(45deg); }
+    .toast { position: fixed; right: 1rem; bottom: 1rem; z-index: 100; max-width: 320px; padding: 1rem 1.1rem; border-radius: 1rem; background: var(--color-surface); border: 1px solid color-mix(in srgb, var(--color-text) 10%, transparent); box-shadow: var(--shadow-md); display:none; }
+    .toast.show { display:block; }
+    .mobile-nav { display:none; position:sticky; bottom:0; z-index:40; grid-template-columns:repeat(4,1fr); background: color-mix(in srgb, var(--color-surface) 92%, transparent); backdrop-filter:blur(10px); border-top:1px solid color-mix(in srgb, var(--color-text) 8%, transparent); }
+    .mobile-nav a { min-height:56px; display:grid; place-items:center; font-size:var(--text-xs); color: var(--color-text-muted); } .mobile-nav a.active { color: var(--color-primary); font-weight:800; }
+    @media (max-width: 1180px) { .stats { grid-template-columns: repeat(2,1fr); } .layout { grid-template-columns:1fr; } }
+    @media (max-width: 980px) { .app-shell { grid-template-columns:1fr; } .sidebar { display:none; } .main { padding-bottom: 5rem; } .mobile-nav { display:grid; } .booking-grid { grid-template-columns:1fr; } }
+    @media (max-width: 720px) { .topbar { flex-direction:column; align-items:flex-start; } .topbar-actions,.booking-actions,.flow-actions { width:100%; } .topbar-actions .btn,.flow-actions .btn { flex:1; } .stats { grid-template-columns:1fr; } .calendar-weekdays,.calendar-grid { gap:.35rem; } .day { min-height:84px; padding:.55rem; } .progress { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="會員側邊欄">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 10.5 12 4l8 6.5"></path><path d="M6 9.5V20h12V9.5"></path><path d="M9 20v-5h6v5"></path></svg>
+        </div>
+        <div><div>共享商店</div><small class="muted">Interactive Dashboard</small></div>
+      </div>
+      <div class="member-card">
+        <span class="pill" id="sidebarTierPill">Pro 會員</span>
+        <h2 style="margin:.85rem 0 .35rem; font-size:1.2rem;">山日甜室</h2>
+        <small class="muted">方案到期日：2026/06/30</small>
+        <div style="margin-top:1rem; display:grid; gap:.45rem;">
+          <div class="muted" id="sidebarBookingRule">可預約尖峰時段，提前 21 天</div>
+          <div class="muted" id="sidebarPeakQuota">本月尖峰配額：2 次</div>
+          <div class="muted">押金狀態：正常，可用 NT$3,000</div>
+        </div>
+      </div>
+      <div class="nav-group">
+        <div class="nav-title">主要功能</div>
+        <a class="nav-link active" href="#overview">首頁摘要</a>
+        <a class="nav-link" href="#booking">我要預約</a>
+        <a class="nav-link" href="#flow">預約流程</a>
+        <a class="nav-link" href="#records">預約紀錄</a>
+      </div>
+      <div class="nav-group">
+        <div class="nav-title">管理設定</div>
+        <a class="nav-link" href="#">我的方案</a>
+        <a class="nav-link" href="#">店家資料</a>
+        <a class="nav-link" href="#">帳務中心</a>
+      </div>
+      <div class="sidebar-footer">
+        <span>深淺色模式</span>
+        <button class="theme-toggle" type="button" data-theme-toggle aria-label="切換深色模式"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg></button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <section class="topbar" id="overview">
+        <div>
+          <div class="pill" style="margin-bottom:.8rem;">可互動測試版本</div>
+          <h1>直接點日期、切會員等級、模擬整個預約流程。</h1>
+          <p class="muted">這版把 booking flow 做成互動式原型，讓你可以測試 Basic、Pro、VIP 在預約權限、可見時段與流程提示上的差異。</p>
+        </div>
+        <div class="topbar-actions">
+          <button class="btn btn-secondary" type="button" id="resetBtn">重設測試</button>
+          <button class="btn btn-primary" type="button" id="jumpBookingBtn">開始預約</button>
+        </div>
+      </section>
+
+      <section class="stats" aria-label="會員摘要數據">
+        <article class="stat"><small class="muted">目前會員方案</small><strong id="statTier">Pro</strong><div class="muted" id="statTierDesc">可預約尖峰時段，提前 21 天</div></article>
+        <article class="stat"><small class="muted">目前選定日期</small><strong id="statDate">尚未選擇</strong><div class="muted" id="statSlot">請先從日曆選擇日期與時段</div></article>
+        <article class="stat"><small class="muted">預估費用</small><strong id="statPrice">NT$0</strong><div class="muted" id="statPriceDesc">依時段、長度與加購項目自動更新</div></article>
+        <article class="stat"><small class="muted">流程狀態</small><strong id="statFlow">待選擇</strong><div class="muted" id="statFlowDesc">完成日期與時段選擇後即可送出</div></article>
+      </section>
+
+      <section class="layout">
+        <div class="stack">
+          <article class="card" id="booking">
+            <div class="card-header">
+              <div>
+                <h2>互動預約介面</h2>
+                <p>點選會員等級後，日曆與可用時段會同步調整；再選日期、時段與加購項目，就能模擬送出預約。</p>
+              </div>
+              <span class="pill">Booking flow 測試區</span>
+            </div>
+
+            <div class="field" style="margin-bottom:1.2rem;">
+              <label>切換會員等級</label>
+              <div class="tier-switch" id="tierSwitch">
+                <button class="tier-btn" data-tier="Basic" type="button">Basic</button>
+                <button class="tier-btn active" data-tier="Pro" type="button">Pro</button>
+                <button class="tier-btn" data-tier="VIP" type="button">VIP</button>
+              </div>
+            </div>
+
+            <div class="booking-grid">
+              <div class="panel">
+                <div class="field">
+                  <label for="businessType">使用類型</label>
+                  <select id="businessType">
+                    <option value="dessert">甜點 / 烘焙</option>
+                    <option value="drink">飲品 / 茶飲</option>
+                    <option value="light">輕食 / 預包裝</option>
+                    <option value="retail">選物快閃</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label>預約類型</label>
+                  <div class="segment" id="typeSwitch">
+                    <button class="seg-btn active" data-type="offpeak" type="button"><strong>離峰時段</strong><small>平日白天、較低時租</small></button>
+                    <button class="seg-btn" data-type="peak" type="button"><strong>尖峰時段</strong><small>週末與晚間，配額有限</small></button>
+                  </div>
+                </div>
+                <div class="field">
+                  <label for="durationSelect">租用長度</label>
+                  <select id="durationSelect">
+                    <option value="3">3 小時</option>
+                    <option value="4">4 小時</option>
+                    <option value="6">半日（6 小時）</option>
+                    <option value="10">整日（10 小時）</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label>快速時段</label>
+                  <div class="quick-slots" id="quickSlots"></div>
+                </div>
+                <div class="field">
+                  <label>加購項目</label>
+                  <div class="segment" id="addonSwitch">
+                    <button class="seg-btn" data-addon="kit" type="button"><strong>出餐包</strong><small>封口機、貼紙、秤</small></button>
+                    <button class="seg-btn" data-addon="marketing" type="button"><strong>行銷包</strong><small>拍攝燈、官方曝光</small></button>
+                  </div>
+                </div>
+                <div class="summary-box" aria-label="預約摘要">
+                  <div class="summary-row"><span>會員方案</span><strong id="summaryTier">Pro</strong></div>
+                  <div class="summary-row"><span>日期</span><strong id="summaryDate">尚未選擇</strong></div>
+                  <div class="summary-row"><span>時段</span><strong id="summarySlot">尚未選擇</strong></div>
+                  <div class="summary-row"><span>租用長度</span><strong id="summaryDuration">3 小時</strong></div>
+                  <div class="summary-row"><span>加購項目</span><strong id="summaryAddon">無</strong></div>
+                  <div class="summary-row"><span>預估費用</span><strong id="summaryPrice">NT$0</strong></div>
+                  <div class="summary-row"><span>規則提醒</span><strong id="summaryRule">請先選擇日期與時段</strong></div>
+                </div>
+              </div>
+
+              <div class="panel">
+                <div class="calendar-top">
+                  <div>
+                    <strong style="font-size:1.1rem;" id="calendarMonthLabel">2026 年 5 月</strong>
+                    <div class="muted" id="calendarRuleText">今天日期已高亮，點選某一天後下方會顯示可用時段。</div>
+                  </div>
+                  <div class="calendar-nav">
+                    <button class="icon-btn" type="button" id="prevMonthBtn" aria-label="上一月">‹</button>
+                    <button class="icon-btn" type="button" id="nextMonthBtn" aria-label="下一月">›</button>
+                  </div>
+                </div>
+                <div class="calendar-weekdays"><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div><div>日</div></div>
+                <div class="calendar-grid" id="calendarGrid"></div>
+
+                <div class="notice-box" style="margin-top:1rem;">
+                  <strong>可選時段</strong>
+                  <div class="muted" id="slotHelpText">先從上方日曆選一個日期。</div>
+                  <div class="slot-list" id="slotList"></div>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="card" id="flow">
+            <div class="card-header">
+              <div>
+                <h3>模擬預約流程</h3>
+                <p>流程分成選日期、確認規則、送出申請三步，讓你直接測試會員限制與提示文字是否合理。</p>
+              </div>
+            </div>
+            <div class="progress" id="progressSteps">
+              <div class="step active"><strong>Step 1</strong><div>選擇日期與時段</div></div>
+              <div class="step"><strong>Step 2</strong><div>確認方案與規則</div></div>
+              <div class="step"><strong>Step 3</strong><div>送出預約</div></div>
+            </div>
+            <div class="flow-box" style="margin-top:1rem;">
+              <strong id="flowTitle">等待選擇</strong>
+              <div class="muted" id="flowMessage">先選擇日期與時段，系統才會顯示是否符合目前會員權限。</div>
+              <div class="flow-actions">
+                <button class="btn btn-secondary" type="button" id="checkRuleBtn">檢查規則</button>
+                <button class="btn btn-primary" type="button" id="submitBookingBtn">模擬送出預約</button>
+              </div>
+            </div>
+          </article>
+
+          <article class="card" id="records">
+            <div class="card-header">
+              <div>
+                <h3>模擬預約紀錄</h3>
+                <p>每次按下送出預約，都會新增一筆紀錄，方便你測試狀態與文案。</p>
+              </div>
+            </div>
+            <div class="record-list" id="recordList">
+              <div class="record"><div class="record-top"><strong>05/10（六）母親節檔期</strong><span class="status ok">已確認</span></div><div class="muted">Pro 會員｜17:00–20:00｜尖峰時段</div></div>
+              <div class="record"><div class="record-top"><strong>05/17（六）品牌試賣</strong><span class="status wait">待付款</span></div><div class="muted">Pro 會員｜13:00–16:00｜離峰時段</div></div>
+            </div>
+          </article>
+        </div>
+
+        <aside class="stack">
+          <article class="card">
+            <div class="card-header"><div><h3>會員權限即時提示</h3><p>切換會員等級後，這裡會同步更新規則。</p></div></div>
+            <div class="checklist" id="rightsList"></div>
+          </article>
+          <article class="card">
+            <div class="card-header"><div><h3>操作說明</h3><p>這版互動原型用來快速驗證預約規則是否直覺。</p></div></div>
+            <div class="checklist">
+              <div class="check-item"><div class="checkmark" aria-hidden="true"></div><div><strong>先切會員等級</strong><div class="muted">測試 Basic / Pro / VIP 看到的規則差異。</div></div><span class="pill">1</span></div>
+              <div class="check-item"><div class="checkmark" aria-hidden="true"></div><div><strong>再選日期與時段</strong><div class="muted">被鎖住的時段會用限制提示說明原因。</div></div><span class="pill">2</span></div>
+              <div class="check-item"><div class="checkmark" aria-hidden="true"></div><div><strong>最後模擬送出</strong><div class="muted">看紀錄、費用與狀態是否符合你的商業規則。</div></div><span class="pill">3</span></div>
+            </div>
+          </article>
+        </aside>
+      </section>
+    </main>
+  </div>
+
+  <nav class="mobile-nav" aria-label="手機快捷導覽"><a class="active" href="#overview">摘要</a><a href="#booking">預約</a><a href="#flow">流程</a><a href="#records">紀錄</a></nav>
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const membershipTiers = {
+      Basic: {
+        label: 'Basic',
+        desc: '只能預約離峰時段，提前 7 天',
+        peakQuota: 0,
+        allowPeak: false,
+        reserveText: '只能看未來 7 天內的離峰空檔',
+        rights: [
+          ['可預約離峰時段', '適合第一次測市場。'],
+          ['提前 7 天預約', '只開放短期預約視窗。'],
+          ['尖峰時段受限', '週末尖峰僅可瀏覽，不可預約。']
+        ]
+      },
+      Pro: {
+        label: 'Pro',
+        desc: '可預約尖峰時段，提前 21 天',
+        peakQuota: 2,
+        allowPeak: true,
+        reserveText: '可預約未來 21 天內時段，含部分尖峰',
+        rights: [
+          ['可預約尖峰時段', '週末與晚間可用配額控管。'],
+          ['提前 21 天預約', '較適合固定排班。'],
+          ['可改期 1 次', '需於規則期限內線上操作。']
+        ]
+      },
+      VIP: {
+        label: 'VIP',
+        desc: '可保留常用檔期，提前 30 天',
+        peakQuota: 999,
+        allowPeak: true,
+        reserveText: '可預約未來 30 天內時段，尖峰與固定檔期優先',
+        rights: [
+          ['尖峰時段優先', '可預留常用熱門檔期。'],
+          ['提前 30 天預約', '可用於長期排程。'],
+          ['含置物與固定檔期權益', '適合穩定經營品牌。']
+        ]
+      }
+    };
+
+    const slotsByDate = {
+      '2026-05-03': [{time:'13:00–16:00', type:'offpeak', price:900}, {time:'17:00–20:00', type:'peak', price:1800}],
+      '2026-05-04': [{time:'已額滿', type:'full', price:0}],
+      '2026-05-09': [{time:'17:00–20:00', type:'peak', price:1800}, {time:'20:00–22:00', type:'peak', price:1200}],
+      '2026-05-10': [{time:'13:00–16:00', type:'offpeak', price:900}, {time:'17:00–20:00', type:'peak', price:1800}],
+      '2026-05-11': [{time:'已額滿', type:'full', price:0}],
+      '2026-05-14': [{time:'10:00–13:00', type:'offpeak', price:900}, {time:'14:00–17:00', type:'offpeak', price:900}],
+      '2026-05-16': [{time:'17:00–20:00', type:'peak', price:1800}],
+      '2026-05-17': [{time:'13:00–16:00', type:'offpeak', price:900}, {time:'17:00–20:00', type:'peak', price:1800}],
+      '2026-05-21': [{time:'已額滿', type:'full', price:0}],
+      '2026-05-23': [{time:'17:00–20:00', type:'peak', price:1800}],
+      '2026-05-24': [{time:'14:00–18:00', type:'offpeak', price:1200}, {time:'18:00–21:00', type:'peak', price:1800}],
+      '2026-05-30': [{time:'17:00–20:00', type:'peak', price:1800}],
+      '2026-05-31': [{time:'13:00–16:00', type:'offpeak', price:900}, {time:'17:00–20:00', type:'peak', price:1800}]
+    };
+
+    const state = {
+      tier: 'Pro',
+      bookingType: 'offpeak',
+      duration: 3,
+      selectedDate: '',
+      selectedSlot: null,
+      addons: new Set(),
+      currentMonth: 4,
+      currentYear: 2026,
+      flowStep: 1
+    };
+
+    const todayISO = '2026-05-10';
+    const monthNames = ['1 月','2 月','3 月','4 月','5 月','6 月','7 月','8 月','9 月','10 月','11 月','12 月'];
+
+    const els = {
+      tierButtons: document.querySelectorAll('.tier-btn'),
+      typeButtons: document.querySelectorAll('#typeSwitch .seg-btn'),
+      addonButtons: document.querySelectorAll('#addonSwitch .seg-btn'),
+      durationSelect: document.getElementById('durationSelect'),
+      quickSlots: document.getElementById('quickSlots'),
+      calendarGrid: document.getElementById('calendarGrid'),
+      slotList: document.getElementById('slotList'),
+      slotHelpText: document.getElementById('slotHelpText'),
+      calendarMonthLabel: document.getElementById('calendarMonthLabel'),
+      calendarRuleText: document.getElementById('calendarRuleText'),
+      summaryTier: document.getElementById('summaryTier'),
+      summaryDate: document.getElementById('summaryDate'),
+      summarySlot: document.getElementById('summarySlot'),
+      summaryDuration: document.getElementById('summaryDuration'),
+      summaryAddon: document.getElementById('summaryAddon'),
+      summaryPrice: document.getElementById('summaryPrice'),
+      summaryRule: document.getElementById('summaryRule'),
+      sidebarTierPill: document.getElementById('sidebarTierPill'),
+      sidebarBookingRule: document.getElementById('sidebarBookingRule'),
+      sidebarPeakQuota: document.getElementById('sidebarPeakQuota'),
+      statTier: document.getElementById('statTier'),
+      statTierDesc: document.getElementById('statTierDesc'),
+      statDate: document.getElementById('statDate'),
+      statSlot: document.getElementById('statSlot'),
+      statPrice: document.getElementById('statPrice'),
+      statPriceDesc: document.getElementById('statPriceDesc'),
+      statFlow: document.getElementById('statFlow'),
+      statFlowDesc: document.getElementById('statFlowDesc'),
+      rightsList: document.getElementById('rightsList'),
+      progressSteps: document.getElementById('progressSteps'),
+      flowTitle: document.getElementById('flowTitle'),
+      flowMessage: document.getElementById('flowMessage'),
+      recordList: document.getElementById('recordList'),
+      toast: document.getElementById('toast')
+    };
+
+    function formatDateLabel(iso) {
+      if (!iso) return '尚未選擇';
+      const d = new Date(iso + 'T00:00:00');
+      const week = ['日','一','二','三','四','五','六'][d.getDay()];
+      return `${d.getMonth()+1}/${d.getDate()}（${week}）`;
+    }
+
+    function getTier() { return membershipTiers[state.tier]; }
+
+    function showToast(message) {
+      els.toast.textContent = message;
+      els.toast.classList.add('show');
+      clearTimeout(showToast.timer);
+      showToast.timer = setTimeout(() => els.toast.classList.remove('show'), 2400);
+    }
+
+    function renderRights() {
+      const tier = getTier();
+      els.rightsList.innerHTML = tier.rights.map(([title,desc], idx) => `
+        <div class="check-item">
+          <div class="checkmark" aria-hidden="true"></div>
+          <div><strong>${title}</strong><div class="muted">${desc}</div></div>
+          <span class="pill">${idx+1}</span>
+        </div>`).join('');
+    }
+
+    function renderTierState() {
+      const tier = getTier();
+      document.querySelectorAll('.tier-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.tier === state.tier));
+      els.sidebarTierPill.textContent = `${tier.label} 會員`;
+      els.sidebarBookingRule.textContent = tier.desc;
+      els.sidebarPeakQuota.textContent = tier.allowPeak ? `本月尖峰配額：${tier.peakQuota === 999 ? '不限' : tier.peakQuota + ' 次'}` : '本月尖峰配額：不可使用';
+      els.statTier.textContent = tier.label;
+      els.statTierDesc.textContent = tier.desc;
+      els.summaryTier.textContent = tier.label;
+      els.calendarRuleText.textContent = tier.reserveText;
+      if (!tier.allowPeak && state.bookingType === 'peak') {
+        state.bookingType = 'offpeak';
+        state.selectedSlot = null;
+      }
+      document.querySelectorAll('#typeSwitch .seg-btn').forEach(btn => {
+        const isPeak = btn.dataset.type === 'peak';
+        btn.classList.toggle('active', btn.dataset.type === state.bookingType);
+        btn.disabled = isPeak && !tier.allowPeak;
+        btn.style.opacity = btn.disabled ? '.55' : '1';
+      });
+      renderRights();
+    }
+
+    function renderQuickSlots() {
+      const options = state.bookingType === 'peak'
+        ? [{label:'17:00–20:00', sub:'熱門晚間'}, {label:'18:00–21:00', sub:'週末加價'}, {label:'20:00–22:00', sub:'短時段'}]
+        : [{label:'10:00–13:00', sub:'上午'}, {label:'13:00–16:00', sub:'下午'}, {label:'14:00–18:00', sub:'半日'}];
+      els.quickSlots.innerHTML = options.map((item, idx) => `<button type="button" class="quick-btn ${state.selectedSlot && state.selectedSlot.time === item.label ? 'active' : ''}" data-quick="${item.label}"><strong>${item.label}</strong><small class="muted">${item.sub}</small></button>`).join('');
+      els.quickSlots.querySelectorAll('.quick-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          if (!state.selectedDate) {
+            showToast('請先選擇日期，再挑快速時段。');
+            return;
+          }
+          const dateSlots = getSlotsForDate(state.selectedDate);
+          const target = dateSlots.find(slot => slot.time === btn.dataset.quick);
+          if (!target) {
+            showToast('目前選定日期沒有這個時段。');
+            return;
+          }
+          trySelectSlot(target);
+        });
+      });
+    }
+
+    function getSlotsForDate(iso) {
+      return slotsByDate[iso] || [];
+    }
+
+    function createDaySummary(iso, day) {
+      const slots = getSlotsForDate(iso);
+      if (!slots.length) return `<span class="slot-mini full">無開放</span>`;
+      const filtered = slots.filter(slot => slot.type !== 'full');
+      const offpeakCount = filtered.filter(slot => slot.type === 'offpeak').length;
+      const peakCount = filtered.filter(slot => slot.type === 'peak').length;
+      if (slots.every(slot => slot.type === 'full')) return `<span class="slot-mini full">已額滿</span>`;
+      return `${offpeakCount ? `<span class="slot-mini offpeak">離峰 ${offpeakCount} 段</span>` : ''}${peakCount ? `<span class="slot-mini peak">尖峰 ${peakCount} 段</span>` : ''}`;
+    }
+
+    function renderCalendar() {
+      const year = state.currentYear;
+      const month = state.currentMonth;
+      els.calendarMonthLabel.textContent = `${year} 年 ${monthNames[month]}`;
+      const firstDay = new Date(year, month, 1);
+      const startingIndex = (firstDay.getDay() + 6) % 7;
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const prevMonthDays = new Date(year, month, 0).getDate();
+      let html = '';
+      for (let i = 0; i < startingIndex; i++) {
+        const dayNum = prevMonthDays - startingIndex + i + 1;
+        html += `<button class="day" disabled type="button"><span class="day-number">${dayNum}</span></button>`;
+      }
+      for (let day = 1; day <= daysInMonth; day++) {
+        const iso = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+        const selected = state.selectedDate === iso ? 'selected' : '';
+        const today = iso === todayISO ? 'today' : '';
+        html += `<button class="day ${selected} ${today}" type="button" data-date="${iso}"><span class="day-number">${day}</span>${createDaySummary(iso, day)}</button>`;
+      }
+      const totalCells = startingIndex + daysInMonth;
+      const trailing = (7 - (totalCells % 7)) % 7;
+      for (let i = 1; i <= trailing; i++) html += `<button class="day" disabled type="button"><span class="day-number">${i}</span></button>`;
+      els.calendarGrid.innerHTML = html;
+      els.calendarGrid.querySelectorAll('.day[data-date]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          state.selectedDate = btn.dataset.date;
+          state.selectedSlot = null;
+          state.flowStep = 1;
+          renderAll();
+        });
+      });
+    }
+
+    function isSlotAllowed(slot) {
+      const tier = getTier();
+      if (slot.type === 'full') return {ok:false, message:'這個時段已額滿。'};
+      if (slot.type === 'peak' && !tier.allowPeak) return {ok:false, message:'Basic 會員不可預約尖峰時段。'};
+      return {ok:true, message:'符合目前會員權限。'};
+    }
+
+    function renderSlotList() {
+      if (!state.selectedDate) {
+        els.slotHelpText.textContent = '先從上方日曆選一個日期。';
+        els.slotList.innerHTML = '';
+        return;
+      }
+      const slots = getSlotsForDate(state.selectedDate);
+      if (!slots.length) {
+        els.slotHelpText.textContent = '這一天目前沒有開放時段。';
+        els.slotList.innerHTML = '';
+        return;
+      }
+      els.slotHelpText.textContent = `${formatDateLabel(state.selectedDate)} 的可用時段如下：`;
+      els.slotList.innerHTML = slots.map(slot => {
+        const check = isSlotAllowed(slot);
+        const active = state.selectedSlot && state.selectedSlot.time === slot.time ? 'active' : '';
+        const locked = !check.ok ? 'locked' : '';
+        const typeLabel = slot.type === 'peak' ? '尖峰' : slot.type === 'offpeak' ? '離峰' : '額滿';
+        const priceText = slot.price ? `NT$${slot.price}` : '不可預約';
+        return `<button type="button" class="slot-chip ${active} ${locked}" data-time="${slot.time}" data-type="${slot.type}">
+          <strong>${slot.time}</strong>
+          <small>${typeLabel}｜${priceText}</small>
+        </button>`;
+      }).join('');
+      els.slotList.querySelectorAll('.slot-chip').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const slot = getSlotsForDate(state.selectedDate).find(item => item.time === btn.dataset.time);
+          if (slot) trySelectSlot(slot);
+        });
+      });
+    }
+
+    function trySelectSlot(slot) {
+      const check = isSlotAllowed(slot);
+      if (!check.ok) {
+        showToast(check.message);
+        state.selectedSlot = null;
+        renderAll();
+        return;
+      }
+      state.selectedSlot = slot;
+      state.bookingType = slot.type === 'peak' ? 'peak' : 'offpeak';
+      state.flowStep = 2;
+      renderAll();
+      showToast(`已選擇 ${formatDateLabel(state.selectedDate)} ${slot.time}`);
+    }
+
+    function calcPrice() {
+      if (!state.selectedSlot) return 0;
+      let base = state.selectedSlot.price || 0;
+      const duration = Number(state.duration);
+      if (duration === 4) base += 250;
+      if (duration === 6) base += 700;
+      if (duration === 10) base += 1400;
+      if (state.addons.has('kit')) base += 250;
+      if (state.addons.has('marketing')) base += 600;
+      if (state.tier === 'VIP') base = Math.max(base - 200, 0);
+      return base;
+    }
+
+    function updateSummary() {
+      const price = calcPrice();
+      els.summaryDate.textContent = formatDateLabel(state.selectedDate);
+      els.summarySlot.textContent = state.selectedSlot ? state.selectedSlot.time : '尚未選擇';
+      els.summaryDuration.textContent = `${state.duration} 小時`;
+      const addons = [];
+      if (state.addons.has('kit')) addons.push('出餐包');
+      if (state.addons.has('marketing')) addons.push('行銷包');
+      els.summaryAddon.textContent = addons.length ? addons.join('＋') : '無';
+      els.summaryPrice.textContent = `NT$${price.toLocaleString('zh-Hant-TW')}`;
+      const rule = state.selectedSlot ? isSlotAllowed(state.selectedSlot).message : '請先選擇日期與時段';
+      els.summaryRule.textContent = rule;
+
+      els.statDate.textContent = formatDateLabel(state.selectedDate);
+      els.statSlot.textContent = state.selectedSlot ? `${state.selectedSlot.time}｜${state.selectedSlot.type === 'peak' ? '尖峰' : '離峰'}` : '請先從日曆選擇日期與時段';
+      els.statPrice.textContent = `NT$${price.toLocaleString('zh-Hant-TW')}`;
+      els.statPriceDesc.textContent = state.selectedSlot ? '已依選定時段與加購項目計算' : '依時段、長度與加購項目自動更新';
+    }
+
+    function updateFlow() {
+      const steps = [...els.progressSteps.children];
+      steps.forEach((step, idx) => {
+        step.classList.remove('active','done');
+        if (idx + 1 < state.flowStep) step.classList.add('done');
+        else if (idx + 1 === state.flowStep) step.classList.add('active');
+      });
+      if (!state.selectedDate || !state.selectedSlot) {
+        state.flowStep = 1;
+        els.flowTitle.textContent = '等待選擇';
+        els.flowMessage.textContent = '先選擇日期與時段，系統才會顯示是否符合目前會員權限。';
+        els.statFlow.textContent = '待選擇';
+        els.statFlowDesc.textContent = '完成日期與時段選擇後即可送出';
+        return;
+      }
+      if (state.flowStep === 2) {
+        els.flowTitle.textContent = '已完成條件檢查';
+        els.flowMessage.textContent = `你目前以 ${state.tier} 會員身份選擇 ${formatDateLabel(state.selectedDate)} 的 ${state.selectedSlot.time}，可以繼續送出預約。`;
+        els.statFlow.textContent = '可送出';
+        els.statFlowDesc.textContent = '目前權限符合，可進入送出階段';
+      }
+      if (state.flowStep >= 3) {
+        els.flowTitle.textContent = '預約已送出';
+        els.flowMessage.textContent = '系統已建立一筆模擬預約紀錄，接下來可測試待付款、已保留或待審核等文案。';
+        els.statFlow.textContent = '已送出';
+        els.statFlowDesc.textContent = '紀錄區已新增一筆模擬資料';
+      }
+    }
+
+    function renderSegmentState() {
+      els.typeButtons.forEach(btn => btn.classList.toggle('active', btn.dataset.type === state.bookingType));
+      els.addonButtons.forEach(btn => btn.classList.toggle('active', state.addons.has(btn.dataset.addon)));
+      els.durationSelect.value = String(state.duration);
+    }
+
+    function renderAll() {
+      renderTierState();
+      renderSegmentState();
+      renderQuickSlots();
+      renderCalendar();
+      renderSlotList();
+      updateSummary();
+      updateFlow();
+    }
+
+    function checkRules() {
+      if (!state.selectedDate || !state.selectedSlot) {
+        showToast('請先選擇日期與時段。');
+        return;
+      }
+      const check = isSlotAllowed(state.selectedSlot);
+      if (!check.ok) {
+        showToast(check.message);
+        return;
+      }
+      state.flowStep = 2;
+      renderAll();
+      showToast('目前選擇符合會員規則。');
+    }
+
+    function submitBooking() {
+      if (!state.selectedDate || !state.selectedSlot) {
+        showToast('還沒完成日期與時段選擇。');
+        return;
+      }
+      const check = isSlotAllowed(state.selectedSlot);
+      if (!check.ok) {
+        showToast(check.message);
+        return;
+      }
+      state.flowStep = 3;
+      const statusClass = state.selectedSlot.type === 'peak' ? 'wait' : 'ok';
+      const statusLabel = state.selectedSlot.type === 'peak' ? '待付款' : '已保留';
+      const addons = [];
+      if (state.addons.has('kit')) addons.push('出餐包');
+      if (state.addons.has('marketing')) addons.push('行銷包');
+      const item = document.createElement('div');
+      item.className = 'record';
+      item.innerHTML = `<div class="record-top"><strong>${formatDateLabel(state.selectedDate)} 模擬預約</strong><span class="status ${statusClass}">${statusLabel}</span></div><div class="muted">${state.tier} 會員｜${state.selectedSlot.time}｜${state.selectedSlot.type === 'peak' ? '尖峰時段' : '離峰時段'}${addons.length ? '｜' + addons.join('＋') : ''}</div>`;
+      els.recordList.prepend(item);
+      renderAll();
+      showToast('已新增一筆模擬預約紀錄。');
+    }
+
+    function resetState() {
+      state.tier = 'Pro';
+      state.bookingType = 'offpeak';
+      state.duration = 3;
+      state.selectedDate = '';
+      state.selectedSlot = null;
+      state.addons = new Set();
+      state.currentMonth = 4;
+      state.currentYear = 2026;
+      state.flowStep = 1;
+      renderAll();
+      showToast('已重設為預設測試狀態。');
+    }
+
+    document.querySelectorAll('.tier-btn').forEach(btn => btn.addEventListener('click', () => {
+      state.tier = btn.dataset.tier;
+      state.selectedSlot = null;
+      state.flowStep = 1;
+      renderAll();
+      showToast(`已切換為 ${state.tier} 會員。`);
+    }));
+
+    document.querySelectorAll('#typeSwitch .seg-btn').forEach(btn => btn.addEventListener('click', () => {
+      if (btn.disabled) return;
+      state.bookingType = btn.dataset.type;
+      state.selectedSlot = null;
+      state.flowStep = 1;
+      renderAll();
+    }));
+
+    document.querySelectorAll('#addonSwitch .seg-btn').forEach(btn => btn.addEventListener('click', () => {
+      const key = btn.dataset.addon;
+      if (state.addons.has(key)) state.addons.delete(key); else state.addons.add(key);
+      renderAll();
+    }));
+
+    els.durationSelect.addEventListener('change', (e) => {
+      state.duration = Number(e.target.value);
+      renderAll();
+    });
+
+    document.getElementById('prevMonthBtn').addEventListener('click', () => {
+      state.currentMonth -= 1;
+      if (state.currentMonth < 0) { state.currentMonth = 11; state.currentYear -= 1; }
+      renderCalendar();
+    });
+    document.getElementById('nextMonthBtn').addEventListener('click', () => {
+      state.currentMonth += 1;
+      if (state.currentMonth > 11) { state.currentMonth = 0; state.currentYear += 1; }
+      renderCalendar();
+    });
+
+    document.getElementById('checkRuleBtn').addEventListener('click', checkRules);
+    document.getElementById('submitBookingBtn').addEventListener('click', submitBooking);
+    document.getElementById('resetBtn').addEventListener('click', resetState);
+    document.getElementById('jumpBookingBtn').addEventListener('click', () => document.getElementById('booking').scrollIntoView({behavior:'smooth'}));
+
+    (function initTheme(){
+      const root = document.documentElement;
+      const toggle = document.querySelector('[data-theme-toggle]');
+      let theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      root.setAttribute('data-theme', theme);
+      function updateIcon() {
+        toggle.innerHTML = theme === 'dark'
+          ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path></svg>'
+          : '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>';
+        toggle.setAttribute('aria-label', theme === 'dark' ? '切換淺色模式' : '切換深色模式');
+      }
+      updateIcon();
+      toggle.addEventListener('click', function(){ theme = theme === 'dark' ? 'light' : 'dark'; root.setAttribute('data-theme', theme); updateIcon(); });
+    })();
+
+    renderAll();
+  </script>
+</body>
+</html>
